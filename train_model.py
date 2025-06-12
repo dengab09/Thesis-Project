@@ -34,7 +34,8 @@ from sklearn.svm import SVC
 from sklearn.preprocessing import LabelEncoder
 
 # --- Configuration ---
-DATASET_DIR = "dataset"
+# --- IMPORTANT: We train on the augmented dataset for better robustness ---
+DATASET_DIR = "dataset_augmented"
 RECOGNIZER_PATH = "output/recognizer.pkl"
 LABEL_ENCODER_PATH = "output/label_encoder.pkl"
 LBP_POINTS = 24
@@ -68,9 +69,14 @@ def extract_lbp_features(img):
     return hist
 
 # --- 3. Process the Dataset ---
-print("[INFO] Starting hybrid feature extraction from the dataset...")
+print(f"[INFO] Starting hybrid feature extraction from '{DATASET_DIR}'...")
 known_features = []
 known_labels = []
+
+if not os.path.exists(DATASET_DIR):
+    print(f"[ERROR] Dataset directory '{DATASET_DIR}' not found.")
+    print("[ERROR] Please run Part 1 (Enrollment) and Part 1.5 (Preprocessing) first.")
+    exit()
 
 person_folders = [f for f in os.listdir(DATASET_DIR) if not f.startswith('.')]
 
@@ -97,7 +103,7 @@ print(f"[INFO] Feature extraction complete. Processed {len(known_features)} imag
 
 # --- 4. Train the Classifier ---
 if not known_features:
-    print("[ERROR] No features were extracted. Is the 'dataset' folder empty?")
+    print(f"[ERROR] No features were extracted. Is the '{DATASET_DIR}' folder empty?")
     exit()
 
 print("[INFO] Encoding labels...")
